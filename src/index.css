@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap');
+@import 'tailwindcss';
+@import 'react-circular-progressbar/dist/styles.css';
+@config "../tailwind.config.js";
+
+@layer base {
+  :root {
+    /* LIGHT MODE */
+    --color-bg-base: #ffffff;
+    --color-bg-elevated: #f5f5f7; /* Apple's signature soft gray for cards */
+
+    /* Typography (Apple doesn't use pure black for text) */
+    --color-label-primary: #1d1d1f;
+    --color-label-secondary: #4a4a4f;
+    --color-label-tertiary: #59595e;
+
+    /* The Single Interactivity Accent */
+    --color-accent: #007aff;
+
+    /* Functional Exceptions */
+    --color-success: #34c759;
+    --color-system-orange: #ff9500;
+    --color-warning: #ff9500;
+
+    /* Borders */
+    --color-border: rgba(0, 0, 0, 0.08);
+
+    /* Backward compatibility mappings */
+    color-scheme: light dark;
+    --color-glass-fill: rgba(255, 255, 255, 0.7);
+    --color-separator: var(--color-border);
+    --color-primary: var(--color-accent);
+    --color-secondary: var(--color-success);
+    --bg-light: var(--color-bg-base);
+    --bg-dark: var(--color-bg-base);
+    --surface-light: var(--color-bg-elevated);
+    --surface-dark: var(--color-bg-elevated);
+    --text-light-main: var(--color-label-primary);
+    --text-light-muted: var(--color-label-secondary);
+    --text-dark-main: var(--color-label-primary);
+    --text-dark-muted: var(--color-label-secondary);
+    --glass-blur: blur(20px);
+    --glass-bg-light: var(--color-glass-fill);
+    --glass-bg-dark: var(--color-glass-fill);
+    --glass-border-light: var(--color-border);
+    --glass-border-dark: var(--color-border);
+    --color-system-blue: var(--color-accent);
+    --color-system-green: var(--color-success);
+  }
+
+  .dark {
+    /* DARK MODE */
+    --color-bg-base: #000000;
+    --color-bg-elevated: #1c1c1e;
+
+    /* Typography */
+    --color-label-primary: #f5f5f7;
+    --color-label-secondary: #b3b3b8;
+    --color-label-tertiary: #9e9ea5;
+
+    /* The Single Interactivity Accent */
+    --color-accent: #2997ff;
+
+    /* Functional Exceptions */
+    --color-success: #32d74b;
+    --color-system-orange: #ff9f0a;
+    --color-warning: #ff9f0a;
+
+    /* Borders */
+    --color-border: rgba(255, 255, 255, 0.12);
+
+    --color-glass-fill: rgba(28, 28, 30, 0.7);
+    --color-separator: var(--color-border);
+    --color-system-blue: var(--color-accent);
+    --color-system-green: var(--color-success);
+  }
+
+  body {
+    @apply bg-background text-label transition-colors duration-300 min-h-screen;
+    font-family:
+      'Outfit',
+      'Inter',
+      -apple-system,
+      BlinkMacSystemFont,
+      'SF Pro Display',
+      'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Default smooth transitions for all interactive elements */
+  button,
+  input,
+  select,
+  textarea,
+  a,
+  .card,
+  [role='button'] {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
+
+/* Custom Circular Progress Bar Apple Dynamic Colors */
+.CircularProgressbar .CircularProgressbar-path {
+  stroke-linecap: round;
+  transition:
+    stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 0.3s ease;
+}
+
+.CircularProgressbar .CircularProgressbar-trail {
+  stroke: var(--color-border);
+  opacity: 0.3;
+  transition: stroke 0.3s ease;
+}
+
+.dark .CircularProgressbar .CircularProgressbar-trail {
+  stroke: var(--color-border);
+  opacity: 0.3;
+}
+
+.CircularProgressbar .CircularProgressbar-text {
+  font-weight: 800;
+  fill: var(--color-label-primary);
+}
+
+/* Custom Desktop Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(134, 134, 139, 0.3);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(134, 134, 139, 0.6);
+}
+
+/* Firefox custom scrollbar support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(134, 134, 139, 0.3) transparent;
+}
+
+/* Custom Scrollbar Utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(134, 134, 139, 0.25);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(134, 134, 139, 0.5);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(134, 134, 139, 0.25) transparent;
+}
+
+/* Custom Apple-inspired Calendar Heatmap (Monochrome + Accent) */
+.react-calendar-heatmap text {
+  font-size: 9px;
+  fill: var(--color-label-secondary);
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.react-calendar-heatmap rect {
+  rx: 2.5px;
+  ry: 2.5px;
+  transition: all 0.15s ease;
+}
+
+.react-calendar-heatmap rect:hover {
+  stroke: var(--color-accent);
+  stroke-width: 1.5px;
+  transform: scale(1.08);
+}
+
+.react-calendar-heatmap .color-empty {
+  fill: rgba(0, 0, 0, 0.05);
+}
+
+.dark .react-calendar-heatmap .color-empty {
+  fill: rgba(255, 255, 255, 0.06);
+}
+
+.react-calendar-heatmap .color-scale-1 {
+  fill: rgba(0, 122, 255, 0.25);
+}
+
+.react-calendar-heatmap .color-scale-2 {
+  fill: rgba(0, 122, 255, 0.5);
+}
+
+.react-calendar-heatmap .color-scale-3 {
+  fill: rgba(0, 122, 255, 0.75);
+}
+
+.react-calendar-heatmap .color-scale-4 {
+  fill: var(--color-accent);
+}
+
+.dark .react-calendar-heatmap .color-scale-1 {
+  fill: rgba(41, 151, 255, 0.2);
+}
+
+.dark .react-calendar-heatmap .color-scale-2 {
+  fill: rgba(41, 151, 255, 0.45);
+}
+
+.dark .react-calendar-heatmap .color-scale-3 {
+  fill: rgba(41, 151, 255, 0.7);
+}
+
+.dark .react-calendar-heatmap .color-scale-4 {
+  fill: var(--color-accent);
+}
+
+
+
+/* VisionOS Spatial Materials */
+.dark .bg-background-elevated {
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
