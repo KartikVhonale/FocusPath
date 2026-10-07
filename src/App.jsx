@@ -299,7 +299,7 @@ function MainLayout() {
         }}
       />
 
-      {/* PART 2 & PART 4: THE MAC-STYLE PUSH SIDEBAR (Desktop Only, Zen-Faded when timer is active, Hidden in Immersion) */}
+      {/* 1. DESKTOP PUSH SIDEBAR (Desktop Only, Zen-Faded when timer is active, Hidden in Immersion) */}
       {!isAuthPage && !isMobile && !isImmersion && (
         <div
           className={`transition-all duration-700 ease-out flex shrink-0 h-full ${
@@ -311,12 +311,24 @@ function MainLayout() {
           <AppSidebar
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
-            isMobile={isMobile}
+            isMobile={false}
             onOpenSpotlight={() => setIsSpotlightOpen(true)}
             onOpenQuickLog={() => setIsQuickLogOpen(true)}
             onOpenClassmates={() => setIsClassmatesOpen(true)}
           />
         </div>
+      )}
+
+      {/* 2. MOBILE OVERLAY SLIDE-OVER DRAWER (< 768px, Hidden in Immersion) */}
+      {!isAuthPage && isMobile && !isImmersion && (
+        <AppSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          isMobile={true}
+          onOpenSpotlight={() => setIsSpotlightOpen(true)}
+          onOpenQuickLog={() => setIsQuickLogOpen(true)}
+          onOpenClassmates={() => setIsClassmatesOpen(true)}
+        />
       )}
 
       {/* PART 3: THE MAIN CANVAS (The "Flex-1" Hero with macOS inset corner) */}
@@ -370,6 +382,7 @@ function MainLayout() {
           <BottomNav
             onOpenClassmates={() => setIsClassmatesOpen(true)}
             onOpenQuickLog={() => setIsQuickLogOpen(true)}
+            onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
           />
         </div>
       )}

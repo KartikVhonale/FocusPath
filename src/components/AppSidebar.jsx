@@ -139,6 +139,28 @@ export default function AppSidebar({
     }
   };
 
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobile && isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isMobile, isOpen]);
+
+  // Escape key listener to close mobile drawer
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMobile && isOpen) {
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobile, isOpen, onClose]);
+
   const streak = dashboardData?.streak || 0;
   const examName = dashboardData?.examName || activeExam?.name || 'Competitive Exam';
   const daysUntilExam = dashboardData?.daysUntilExam || 0;
@@ -157,7 +179,7 @@ export default function AppSidebar({
 
   // The reusable sidebar content
   const sidebarInnerContent = (
-    <div className="w-[280px] min-w-[280px] h-full flex flex-col justify-between p-5 select-none overflow-y-auto custom-scrollbar">
+    <div className="w-full h-full flex flex-col justify-between p-5 select-none overflow-y-auto custom-scrollbar">
       <div className="space-y-6">
         {/* App Branding & Icon */}
         <div className="flex items-center justify-between">
@@ -185,11 +207,14 @@ export default function AppSidebar({
           {isMobile && (
             <button
               type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-text-muted hover:text-text-main dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              onClick={() => {
+                hapticFeedback.tap();
+                onClose?.();
+              }}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-xl text-text-muted hover:text-text-main dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer active:scale-95"
               aria-label="Close sidebar"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
@@ -362,9 +387,10 @@ export default function AppSidebar({
 
           <DropdownMenu.Portal>
             <DropdownMenu.Content
+              side="top"
               align="start"
               sideOffset={8}
-              className="z-50 min-w-[210px] bg-background-elevated/95 backdrop-blur-2xl border-[0.5px] border-border rounded-3xl p-2 shadow-sm animate-in fade-in zoom-in-95 duration-150 outline-none"
+              className="z-[70] min-w-[220px] bg-background-elevated/95 backdrop-blur-2xl border-[0.5px] border-border rounded-3xl p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 outline-none"
             >
               <div className="px-3 py-2 border-b border-black/5 dark:border-white/5 mb-1">
                 <p className="text-xs tracking-wide font-bold text-text-main dark:text-text-darkMain truncate">
@@ -448,9 +474,51 @@ export default function AppSidebar({
         </motion.aside>
       )}
 
+      {/* 2. MOBILE OVERRIDE: NATIVE iOS SLIDE-OVER DRAWER (< 768px) */}
+      {isMobile && (
+        <AnimatePresence>
+          {isOpen && (
+            <div className="fixed inset-0 z-50 flex pointer-events-auto">
+              {/* Dimmed backdrop with blur */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => {
+                  hapticFeedback.tap();
+                  onClose?.();
+                }}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm -webkit-backdrop-blur-sm"
+              />
+
+              {/* iOS Mobile Slide-in Drawer */}
+              <motion.aside
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 26, stiffness: 260 }}
+                drag="x"
+                dragConstraints={{ left: -320, right: 0 }}
+                dragElastic={{ left: 0.05, right: 0 }}
+                onDragEnd={(e, { offset, velocity }) => {
+                  if (offset.x < -60 || velocity.x < -200) {
+                    hapticFeedback.tap();
+                    onClose?.();
+                  }
+                }}
+                className="relative z-10 w-[84vw] max-w-[320px] h-full bg-background-elevated/95 backdrop-blur-2xl border-r border-border flex flex-col justify-between overflow-y-auto select-none shadow-2xl pt-[calc(env(safe-area-inset-top)+0.5rem)] pb-[calc(env(safe-area-inset-bottom)+1.25rem)] touch-pan-y"
+              >
+                {sidebarInnerContent}
+              </motion.aside>
+            </div>
+          )}
+        </AnimatePresence>
+      )}
+
       {/* Join Classroom Modal for Students */}
       {isJoinModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
           <div className="w-full max-w-sm rounded-3xl bg-background-elevated border-[0.5px] border-border p-6 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-text-main dark:text-text-darkMain">

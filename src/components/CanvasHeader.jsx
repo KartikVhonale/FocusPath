@@ -66,7 +66,7 @@ export default function CanvasHeader({
   return (
     <header className="sticky top-0 z-20 min-h-14 pt-[env(safe-area-inset-top)] bg-glass backdrop-blur-xl border-b-[0.5px] border-border px-4 sm:px-6 flex items-center justify-between shrink-0 select-none transition-colors duration-300">
       <div className="flex items-center gap-3">
-        {/* Native macOS Sidebar Toggle (Hidden on Mobile) */}
+        {/* Native macOS & iOS Sidebar Toggle (Available on Mobile & Desktop) */}
         <button
           type="button"
           onClick={() => {
@@ -75,9 +75,9 @@ export default function CanvasHeader({
           }}
           aria-label="Toggle Sidebar"
           title="Toggle Sidebar (⌘B)"
-          className="hidden md:flex min-w-[44px] min-h-[44px] p-2 rounded-xl text-label-secondary hover:text-label hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer items-center justify-center"
+          className="flex min-w-[44px] min-h-[44px] p-2 rounded-xl text-label-secondary hover:text-label hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer items-center justify-center"
         >
-          <PanelLeft className="w-4 h-4" />
+          <PanelLeft className="w-5 h-5 sm:w-4 sm:h-4" />
         </button>
 
         {/* Vertical divider (Desktop only) */}
@@ -181,21 +181,22 @@ export default function CanvasHeader({
           )}
         </button>
 
-        {/* PART 3: Mobile-Only Profile Avatar (The ONLY interactive element at top) */}
+        {/* PART 3: Mobile-Only Profile Avatar (Tapping reveals sidebar drawer & profile) */}
         <div className="md:hidden flex items-center shrink-0">
-          <div
-            className="w-9 h-9 rounded-full bg-accent text-white font-black text-xs tracking-wide flex items-center justify-center shadow-md ring-2 ring-white/20 select-none cursor-pointer active:scale-95 transition-transform"
-            title={user?.name || 'Aspirant Profile'}
+          <button
+            type="button"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-1"
+            title={user?.name || 'Profile & Menu'}
+            aria-label="Open Navigation & Profile"
             onClick={() => {
               hapticFeedback.tap();
-              toast(`${user?.name || 'Aspirant'} (${user?.accountMode || 'Student'})`, {
-                icon: '👤',
-                id: 'profile-info',
-              });
+              onToggleSidebar?.();
             }}
           >
-            {user?.firstName?.[0] || user?.name?.[0] || 'A'}
-          </div>
+            <div className="w-8 h-8 rounded-full bg-accent text-white font-black text-xs tracking-wide flex items-center justify-center shadow-md ring-2 ring-white/20 select-none cursor-pointer active:scale-95 transition-transform">
+              {user?.firstName?.[0] || user?.name?.[0] || 'A'}
+            </div>
+          </button>
         </div>
       </div>
     </header>
