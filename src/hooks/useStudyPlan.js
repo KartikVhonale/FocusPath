@@ -129,6 +129,22 @@ export function useUndoTask() {
 
       return { previousDashboard };
     },
+    onSuccess: (data) => {
+      if (data && data.todayCompleted !== undefined) {
+        queryClient.setQueryData(queryKeys.dashboard(), (old) => {
+          if (!old) return old;
+          const prev = old.data || old;
+          const updated = {
+            ...prev,
+            todayCompleted: Math.max(0, data.todayCompleted),
+            ...(data.totalCompleted !== undefined ? { totalCompleted: Math.max(0, data.totalCompleted) } : {}),
+            ...(data.upNextQueue ? { upNextQueue: data.upNextQueue, upNext: data.upNextQueue[0] || null } : {}),
+            ...(data.reviewQueue ? { reviewQueue: data.reviewQueue } : {}),
+          };
+          return old.data ? { ...old, data: updated } : updated;
+        });
+      }
+    },
     onError: (err, variables, context) => {
       if (context?.previousDashboard) {
         queryClient.setQueryData(queryKeys.dashboard(), context.previousDashboard);

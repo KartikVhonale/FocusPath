@@ -63,7 +63,6 @@ export default function Focus() {
     hasPlan: contextHasPlan,
     loading: contextLoading,
     error: contextError,
-    quickIncrement,
     recordTimerSession,
   } = useApp();
   const { user, isManagedStudent, teacherName, cohortNotes } = useAuth();
@@ -89,14 +88,8 @@ export default function Focus() {
 
   // Sync initial and query-refreshed todayCompletedTopics from backend
   useEffect(() => {
-    if (dashboardData?.todayCompletedTopics?.length) {
-      setCompletedTodayList((prev) => {
-        const existingIds = new Set(prev.map((t) => String(t.id)));
-        const incoming = dashboardData.todayCompletedTopics.filter(
-          (t) => !existingIds.has(String(t.id))
-        );
-        return [...incoming, ...prev];
-      });
+    if (Array.isArray(dashboardData?.todayCompletedTopics)) {
+      setCompletedTodayList(dashboardData.todayCompletedTopics);
     }
   }, [dashboardData?.todayCompletedTopics]);
 
@@ -560,7 +553,6 @@ export default function Focus() {
       });
       setCompletedTodayList((prev) => prev.filter((t) => String(t.id) !== String(item.id)));
       setSessionTasksConquered((prev) => Math.max(0, prev - 1));
-      quickIncrement(-1);
 
       toast.success('Task restored to queue', {
         duration: 2500,
@@ -579,10 +571,9 @@ export default function Focus() {
         setCompletedTopicIds((prev) => new Set(prev).add(item.id));
         setCompletedTodayList((prev) => [item, ...prev]);
         setSessionTasksConquered((prev) => prev + 1);
-        quickIncrement(1);
       }
     },
-    [dashboardData, undoTaskMutation, quickIncrement]
+    [dashboardData, undoTaskMutation]
   );
 
   // Quick Edit Popover: update logged minutes via PATCH /api/history/edit-log
@@ -619,9 +610,6 @@ export default function Focus() {
     setSessionTasksConquered((prev) => prev + 1);
 
     // 2. Optimistically bump progress counter if new topic
-    if (!isReview) {
-      quickIncrement(1);
-    }
 
     // 3. Native-feeling Toast at top of screen without action button (auto-dismiss 2.5s)
     toast.success('Subtopic Complete. Great work.', {
