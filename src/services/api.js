@@ -1,10 +1,20 @@
 import axios from 'axios';
 import localforage from 'localforage';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Clean & normalize API root URL from environment variables
+const rawApiUrl = (
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  'http://localhost:5000'
+)
+  .trim()
+  .replace(/\/+$/, '');
+
+// Ensure baseURL always ends with '/api' without duplicating it
+export const API_BASE_URL = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
 const client = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

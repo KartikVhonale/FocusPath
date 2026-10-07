@@ -2,8 +2,7 @@
  * Production Client Telemetry Service
  * Sends unhandled client exceptions and render crashes to the backend telemetry logger.
  */
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from './api.js';
 
 export async function logClientError(error, info = {}) {
   try {
@@ -27,7 +26,7 @@ export async function logClientError(error, info = {}) {
     }
 
     // Attempt to log to telemetry backend endpoint
-    await fetch(`${API_BASE}/telemetry/log-error`, {
+    await fetch(`${API_BASE_URL}/telemetry/log-error`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
