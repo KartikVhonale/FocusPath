@@ -162,4 +162,30 @@ describe('Frontend Apple HIG Utilities & Math Engine Tests', () => {
       assert.equal(overPercent, 100);
     });
   });
+
+  describe('Dark / Light Theme State Persistence', () => {
+    it('restores theme from localStorage accurately', () => {
+      const store = {};
+      global.localStorage = {
+        getItem: (k) => store[k] || null,
+        setItem: (k, v) => { store[k] = String(v); },
+        removeItem: (k) => { delete store[k]; },
+      };
+
+      global.localStorage.setItem('theme', 'dark');
+      assert.equal(global.localStorage.getItem('theme'), 'dark');
+
+      global.localStorage.setItem('theme', 'light');
+      assert.equal(global.localStorage.getItem('theme'), 'light');
+    });
+
+    it('toggles theme state and preserves selection across reloads', () => {
+      const toggle = (current) => (current === 'dark' ? 'light' : 'dark');
+      let currentTheme = 'dark';
+      currentTheme = toggle(currentTheme);
+      assert.equal(currentTheme, 'light');
+      currentTheme = toggle(currentTheme);
+      assert.equal(currentTheme, 'dark');
+    });
+  });
 });

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { hapticFeedback } from '../utils/haptics';
+import { useTheme } from '../hooks/useTheme';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 
@@ -43,24 +44,8 @@ export default function AppNavigation({ onOpenQuickLog, onOpenSpotlight }) {
   const [joinCode, setJoinCode] = useState('');
   const [isJoiningClass, setIsJoiningClass] = useState(false);
 
-  // Dark Mode State
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
-
-  const toggleDarkMode = () => {
-    hapticFeedback.medium();
-    const root = document.documentElement;
-    if (root.classList.contains('dark')) {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-      toast('☀️ Light Mode enabled', { id: 'theme-mode' });
-    } else {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
-      toast('🌙 Dark Mode enabled', { id: 'theme-mode' });
-    }
-  };
+  // Synchronized Theme State
+  const { isDark, toggleTheme: toggleDarkMode } = useTheme();
 
   const handleLogout = () => {
     hapticFeedback.medium();

@@ -5,6 +5,7 @@ import { PanelLeft, Search, Flame, Moon, Sun, Plus, Users } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { useCanvasScroll } from '../hooks/useCanvasScroll';
+import { useTheme } from '../hooks/useTheme';
 import { hapticFeedback } from '../utils/haptics';
 import toast from 'react-hot-toast';
 
@@ -18,26 +19,7 @@ export default function CanvasHeader({
   const { user, isTeacher } = useAuth();
   const location = useLocation();
   const { isScrolled } = useCanvasScroll(35);
-
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false
-  );
-
-  const toggleDarkMode = () => {
-    hapticFeedback.medium();
-    const root = document.documentElement;
-    if (root.classList.contains('dark')) {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-      toast('☀️ Light Mode enabled', { id: 'theme-mode' });
-    } else {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
-      toast('🌙 Dark Mode enabled', { id: 'theme-mode' });
-    }
-  };
+  const { isDark, toggleTheme: toggleDarkMode } = useTheme();
 
   const getPageTitle = (pathname) => {
     switch (pathname) {

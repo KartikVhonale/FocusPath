@@ -25,6 +25,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../utils/queryKeys';
 import { hapticFeedback } from '../utils/haptics';
+import { useTheme } from '../hooks/useTheme';
 import toast from 'react-hot-toast';
 import api from '../services/api';
 
@@ -72,26 +73,8 @@ export default function AppSidebar({
   const [joinCode, setJoinCode] = useState('');
   const [isJoiningClass, setIsJoiningClass] = useState(false);
 
-  // Dark Mode State
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false
-  );
-
-  const toggleDarkMode = () => {
-    hapticFeedback.medium();
-    const root = document.documentElement;
-    if (root.classList.contains('dark')) {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-      toast('☀️ Light Mode enabled', { id: 'theme-mode' });
-    } else {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
-      toast('🌙 Dark Mode enabled', { id: 'theme-mode' });
-    }
-  };
+  // Synchronized Theme State
+  const { isDark, toggleTheme: toggleDarkMode } = useTheme();
 
   const handleLogout = () => {
     hapticFeedback.medium();

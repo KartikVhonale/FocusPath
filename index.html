@@ -12,6 +12,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Immediate Theme Restoration (Zero Flash of Unstyled Theme) -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('theme');
+          var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = saved === 'dark' || (!saved && systemDark);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) {
+            meta.setAttribute('content', isDark ? '#000000' : '#FFFFFF');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="bg-background text-label font-sans antialiased overflow-x-hidden overscroll-y-none selection:bg-accent selection:text-white">
     <div id="root"></div>

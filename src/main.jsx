@@ -8,6 +8,10 @@ import { initOfflineSync } from './utils/offlineSync';
 import './index.css';
 import App from './App.jsx';
 import { Analytics } from '@vercel/analytics/react';
+import { getSavedTheme, applyThemeToDOM } from './hooks/useTheme';
+
+// Guarantee saved theme application before React mount
+applyThemeToDOM(getSavedTheme());
 
 const queryClient = new QueryClient({
   defaultOptions: {

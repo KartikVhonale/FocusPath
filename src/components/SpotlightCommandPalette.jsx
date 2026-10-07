@@ -35,6 +35,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTimerStore } from '../store/useTimerStore';
 import { exportStudyDataToCsv } from '../utils/exportCsv';
 import { hapticFeedback } from '../utils/haptics';
+import { useTheme } from '../hooks/useTheme';
 
 export default function SpotlightCommandPalette({ isOpen, onClose, onStartTimer, onOpenQuickLog }) {
   const navigate = useNavigate();
@@ -43,9 +44,7 @@ export default function SpotlightCommandPalette({ isOpen, onClose, onStartTimer,
   const { isTeacher, user } = useAuth();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState('root'); // 'root' | 'schedule'
-  const [isDarkMode, setIsDarkMode] = useState(() =>
-    document.documentElement.classList.contains('dark')
-  );
+  const { isDark: isDarkMode, toggleTheme } = useTheme();
 
   // Reset page to root when closing
   useEffect(() => {
@@ -65,15 +64,6 @@ export default function SpotlightCommandPalette({ isOpen, onClose, onStartTimer,
       };
     }
   }, [isOpen]);
-
-  // Sync dark mode state
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.documentElement.classList.contains('dark'));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
 
   // Keyboard shortcut listener: Cmd+K / Ctrl+K & Escape & Backspace
   useEffect(() => {
@@ -124,22 +114,6 @@ export default function SpotlightCommandPalette({ isOpen, onClose, onStartTimer,
     });
     return list;
   }, [activeExam, dashboardData?.completedChapterIds]);
-
-  const toggleTheme = () => {
-    hapticFeedback.tap();
-    const root = document.documentElement;
-    if (root.classList.contains('dark')) {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDarkMode(false);
-      toast('☀️ Light theme enabled', { id: 'theme-toast' });
-    } else {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDarkMode(true);
-      toast('🌙 Dark theme enabled', { id: 'theme-toast' });
-    }
-  };
 
   const handleSelectTopic = (chap) => {
     hapticFeedback.medium();
