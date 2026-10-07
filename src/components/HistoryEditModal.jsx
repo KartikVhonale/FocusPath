@@ -517,18 +517,18 @@ export default function HistoryEditModal({ isOpen, onClose, entry, allSyllabusTo
     </>
   );
 
-  // Mobile Bottom Sheet (Vaul Drawer)
+  // Mobile Bottom Sheet (Vaul Drawer snapping to 50% and 100%)
   if (isMobile) {
     return (
-      <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <Drawer.Root open={isOpen} onOpenChange={(open) => !open && onClose()} snapPoints={[0.5, 1]}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-md transition-opacity duration-300 ease-out" />
           <Drawer.Content
             aria-describedby="time-machine-desc"
-            className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-[28px] bg-background-elevated/95 backdrop-blur-2xl border-t border-[0.5px] border-border max-h-[88vh] outline-none p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overflow-hidden"
+            className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-[28px] bg-background-elevated/95 backdrop-blur-2xl border-t border-[0.5px] border-border h-full max-h-[100vh] outline-none p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overflow-hidden"
           >
-            {/* Grab handle indicator */}
-            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-black/20 dark:bg-white/20 shrink-0" />
+            {/* Prominent gray pill-shaped drag handle indicator */}
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 shrink-0" />
             {modalInnerContent}
           </Drawer.Content>
         </Drawer.Portal>

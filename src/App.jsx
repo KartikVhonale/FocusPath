@@ -274,8 +274,8 @@ function MainLayout() {
   }, []);
 
   return (
-    /* PART 1: THE ROOT APP SHELL (Strict, full-screen, non-scrolling wrapper with iOS safe areas) */
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-label font-sans transition-colors duration-300 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    /* PART 1: THE ROOT APP SHELL (Strict, full-screen, non-scrolling wrapper) */
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-label font-sans transition-colors duration-300">
       <Toaster
         position="top-center"
         reverseOrder={false}
@@ -367,7 +367,10 @@ function MainLayout() {
               : 'opacity-100 filter-none'
           }`}
         >
-          <BottomNav onOpenClassmates={() => setIsClassmatesOpen(true)} />
+          <BottomNav
+            onOpenClassmates={() => setIsClassmatesOpen(true)}
+            onOpenQuickLog={() => setIsQuickLogOpen(true)}
+          />
         </div>
       )}
 

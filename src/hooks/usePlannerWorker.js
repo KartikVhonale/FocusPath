@@ -36,7 +36,7 @@ function nextId() {
   return `worker-${Date.now()}-${_msgCounter}`;
 }
 
-export function usePlannerWorker() {
+export function usePlannerWorker(data = null) {
   const workerRef = useRef(null);
   const pendingRef = useRef(new Map()); // id -> { resolve, reject }
 
@@ -77,6 +77,14 @@ export function usePlannerWorker() {
       workerRef.current = null;
     };
   }, []);
+
+  // Reactivity Fix: Ensure the useEffect that triggers your Web Worker includes the syllabus data in its dependency array
+  useEffect(() => {
+    const worker = workerRef.current;
+    if (worker && data) {
+      worker.postMessage(data);
+    }
+  }, [data]);
 
   /**
    * Internal: dispatch a typed message and return a Promise for the response.
@@ -212,6 +220,7 @@ export function usePlannerWorker() {
     calculateSRS,
     calculateDistribution,
     countNodes,
+    worker: workerRef.current,
     /** True when the worker has been successfully initialised */
     isReady: Boolean(workerRef.current),
   };

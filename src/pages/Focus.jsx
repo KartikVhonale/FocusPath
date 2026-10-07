@@ -31,6 +31,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTimerStore } from '../store/useTimerStore';
 import { useDashboard, useToggleNode, useUndoTask } from '../hooks/useStudyPlan';
 import { useEditHistory, useTimeline } from '../hooks/useHistory';
+import { usePlannerWorker } from '../hooks/usePlannerWorker';
 import { getGreeting, isNightShift, hapticFeedback, supportsTriggers } from '../utils';
 import { AppleButton } from '../components/ui';
 import { Drawer } from 'vaul';
@@ -92,6 +93,15 @@ export default function Focus() {
       setCompletedTodayList(dashboardData.todayCompletedTopics);
     }
   }, [dashboardData?.todayCompletedTopics]);
+
+  // Reactivity Fix: Ensure the useEffect that triggers your Web Worker includes the syllabus data in its dependency array
+  const syllabusData = dashboardData?.syllabus || dashboardData;
+  const { worker } = usePlannerWorker(syllabusData);
+  useEffect(() => {
+    if (worker && syllabusData) {
+      worker.postMessage(syllabusData);
+    }
+  }, [syllabusData, worker]);
 
   // Contextual Time of Day Greeting & Apple Night Shift Lighting from Centralized Utils
   const greeting = useMemo(() => getGreeting(), []);
@@ -726,15 +736,18 @@ export default function Focus() {
     safeModeWarning = '',
   } = dashboardData;
 
-  let displayPercentage = 0;
-  let isBonusWork = false;
-  if (todayTarget === 0 && todayCompleted > 0) {
-    displayPercentage = 100;
-    isBonusWork = true;
-  } else if (todayTarget > 0) {
-    displayPercentage = Math.min(Math.round((todayCompleted / todayTarget) * 100), 100);
+  const target = todayTarget;
+  const completed = todayCompleted;
+
+  let displayPercent = 0;
+  if (target === 0 && completed > 0) {
+    displayPercent = 100; // Prevent Infinity
+  } else if (target > 0) {
+    displayPercent = Math.min((completed / target) * 100, 100);
   }
-  const cappedVisualProgress = displayPercentage;
+
+  const displayPercentage = Math.round(displayPercent);
+  const cappedVisualProgress = displayPercent;
 
   const dailyTargetMinutes = (Number(dailyTargetHours) || 4) * 60;
   const timeStudiedHoursFormatted = (timeStudiedMinutes / 60).toFixed(1);
@@ -908,20 +921,28 @@ export default function Focus() {
         <motion.div
           animate={isDailyQuotaComplete ? { scale: [1, 1.02, 1] } : {}}
           transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.5 }}
-          className={`grid grid-cols-1 sm:grid-cols-2 gap-4 transition-all duration-500 ${
+          className={`flex flex-col md:flex-row gap-4 transition-all duration-500 ${
             isZenDimmed ? 'opacity-30 filter grayscale pointer-events-none' : 'opacity-100'
           }`}
         >
           {/* Bar 1: Tasks - Uses --color-system-blue */}
-          <div className="bg-background-elevated border-[0.5px] border-border rounded-2xl p-4 space-y-2.5">
+          <div className="flex-1 bg-background-elevated border-[0.5px] border-border rounded-2xl p-4 space-y-2.5">
             <div className="flex items-center justify-between text-xs tracking-wide">
               <span className="font-semibold text-label flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
                 <span>Task Quota</span>
               </span>
-              <span className={`font-mono font-medium flex items-center gap-1 ${isBonusWork ? 'text-success' : 'text-label-secondary'}`}>
-                {todayCompleted} / {todayTarget} {dashboardData.goalUnit || 'Topics'} ({displayPercentage}%)
-                {isBonusWork && <span className="text-[10px] tracking-wide font-bold ml-1">Bonus Work ??</span>}
+              <span
+                className={`font-mono font-medium flex items-center gap-1.5 ${
+                  target === 0 ? 'text-[var(--color-success)]' : 'text-label-secondary'
+                }`}
+              >
+                {completed} / {target} {dashboardData.goalUnit || 'Topics'} ({displayPercentage}%)
+                {target === 0 && (
+                  <span className="text-[10px] tracking-wide font-bold px-2 py-0.5 rounded-full bg-success/15 text-[var(--color-success)] border border-success/20 inline-flex items-center">
+                    Bonus Work
+                  </span>
+                )}
               </span>
             </div>
             <div className="w-full h-2 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden">
@@ -936,7 +957,7 @@ export default function Focus() {
           </div>
 
           {/* Bar 2: Time - Uses --color-system-green */}
-          <div className="bg-background-elevated border-[0.5px] border-border rounded-2xl p-4 space-y-2.5">
+          <div className="flex-1 bg-background-elevated border-[0.5px] border-border rounded-2xl p-4 space-y-2.5">
             <div className="flex items-center justify-between text-xs tracking-wide">
               <span className="font-semibold text-label flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-success" />
@@ -1110,8 +1131,14 @@ export default function Focus() {
                   <span className="text-[11px] font-bold uppercase tracking-wider text-accent mt-1">
                     {dashboardData.goalUnit || 'Topics'} Done
                   </span>
-                  <span className={`text-xs tracking-wide font-semibold mt-0.5 ${isBonusWork ? "text-success" : "text-label-secondary"}`}>
-                    {isBonusWork ? "Bonus Work 🚀" : `${displayPercentage}% of daily goal`}
+                  <span className={`text-xs tracking-wide font-semibold mt-0.5 flex items-center justify-center gap-1 ${target === 0 ? 'text-[var(--color-success)]' : 'text-label-secondary'}`}>
+                    {target === 0 ? (
+                      <span className="text-[10px] tracking-wide font-bold px-2 py-0.5 rounded-full bg-success/15 text-[var(--color-success)] border border-success/20 inline-flex items-center">
+                        Bonus Work
+                      </span>
+                    ) : (
+                      `${displayPercentage}% of daily goal`
+                    )}
                   </span>
                 </div>
               </div>

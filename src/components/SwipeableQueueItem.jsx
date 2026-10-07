@@ -21,47 +21,72 @@ export default function SwipeableQueueItem({
   const [_swipedAction, setSwipedAction] = useState(null); // 'complete' | 'snooze'
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
   const longPressTimerRef = useRef(null);
+  const hasTriggeredRef = useRef(false);
   const isMobile = useIsMobile();
   const x = useMotionValue(0);
   const { activeTopic, isActive, startTimer } = useTimerStore();
   const isTimerThisItem = activeTopic?.id === item.id;
 
   // Background color and icon opacity transformations based on drag distance
-  const greenOpacity = useTransform(x, [0, 50, 90], [0, 0.4, 1]);
-  const snoozeOpacity = useTransform(x, [-90, -50, 0], [1, 0.4, 0]);
+  const greenOpacity = useTransform(x, [0, 40, 100], [0, 0.5, 1]);
+  const snoozeOpacity = useTransform(x, [-100, -40, 0], [1, 0.5, 0]);
+
+  // Dynamic 40% of screen width threshold (Apple Mail style)
+  const getThreshold = () => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth * 0.4;
+    }
+    return 150;
+  };
 
   const bind = useDrag(
     ({ down, movement: [mx] }) => {
       if (isCompleted) return;
+
+      const threshold = getThreshold();
 
       if (down) {
         // Cancel long press if user begins dragging
         if (longPressTimerRef.current) {
           clearTimeout(longPressTimerRef.current);
         }
-        // Limit horizontal drag between -130px and 130px
-        const clampedX = Math.max(-130, Math.min(130, mx));
+
+        const maxDrag = typeof window !== 'undefined' ? window.innerWidth * 0.85 : 320;
+        const clampedX = Math.max(-140, Math.min(maxDrag, mx));
         x.set(clampedX);
 
-        if (clampedX > 80) {
+        if (clampedX >= threshold) {
           setSwipedAction('complete');
+          if (!hasTriggeredRef.current) {
+            hasTriggeredRef.current = true;
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+              navigator.vibrate(50);
+            }
+          }
         } else if (clampedX < -80) {
           setSwipedAction('snooze');
+          hasTriggeredRef.current = false;
         } else {
           setSwipedAction(null);
+          hasTriggeredRef.current = false;
         }
       } else {
         // Drag released: trigger action if threshold exceeded
-        if (mx > 75) {
-          hapticFeedback.swipe(); // navigator.vibrate(50) for light tap
+        if (mx >= threshold || hasTriggeredRef.current) {
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(50);
+          }
           onComplete(item);
         } else if (mx < -75) {
-          hapticFeedback.swipe();
+          if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(50);
+          }
           onSnooze(item);
         }
         // Spring back to center
         x.set(0);
         setSwipedAction(null);
+        hasTriggeredRef.current = false;
       }
     },
     {
@@ -110,12 +135,12 @@ export default function SwipeableQueueItem({
       >
         {/* Background Action Underlays (revealed during iOS swipe) */}
         <div className="absolute inset-0 flex items-center justify-between pointer-events-none rounded-none md:rounded-2xl">
-          {/* Swipe Right Background: Green Complete / Review */}
+          {/* Swipe Right Background: --color-success with checkmark icon */}
           <motion.div
-            style={{ opacity: greenOpacity }}
-            className="absolute inset-y-0 left-0 w-full bg-success flex items-center pl-5 gap-2 text-white font-bold text-xs tracking-wide"
+            style={{ opacity: greenOpacity, backgroundColor: 'var(--color-success)' }}
+            className="absolute inset-y-0 left-0 w-full flex items-center pl-5 gap-2.5 text-white font-bold text-xs tracking-wide"
           >
-            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center">
               <Check className="w-4 h-4 stroke-[3]" />
             </div>
             <span>{isReview ? 'Mark Reviewed' : 'Mark Completed'}</span>
@@ -300,7 +325,7 @@ export default function SwipeableQueueItem({
             className="fixed bottom-0 left-0 right-0 z-50 flex flex-col rounded-t-[28px] bg-background-elevated/95 backdrop-blur-2xl border-t border-border p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] outline-none overflow-hidden space-y-4 max-w-lg mx-auto"
           >
             {/* Grab handle indicator */}
-            <div className="mx-auto h-1.5 w-12 rounded-full bg-border shrink-0" />
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto shrink-0" />
 
             {/* Header info */}
             <div className="text-center px-4 space-y-1">

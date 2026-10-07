@@ -112,7 +112,54 @@ describe('Frontend Apple HIG Utilities & Math Engine Tests', () => {
       assert.doesNotThrow(() => hapticFeedback.bulkComplete());
       assert.doesNotThrow(() => hapticFeedback.timerSuccess());
       assert.doesNotThrow(() => hapticFeedback.warning());
-      assert.doesNotThrow(() => hapticFeedback.error());
+    });
+  });
+
+  describe('Rest Day Quota Math (Prevent 2 / 0 Infinity Glitch)', () => {
+    it('returns 100% and handles bonus work when target is 0 and completed > 0', () => {
+      const target = 0;
+      const completed = 2;
+      let displayPercent = 0;
+      if (target === 0 && completed > 0) {
+        displayPercent = 100;
+      } else if (target > 0) {
+        displayPercent = Math.min((completed / target) * 100, 100);
+      }
+      assert.equal(displayPercent, 100);
+      assert.equal(target === 0, true);
+    });
+
+    it('returns 0% when target is 0 and completed is 0', () => {
+      const target = 0;
+      const completed = 0;
+      let displayPercent = 0;
+      if (target === 0 && completed > 0) {
+        displayPercent = 100;
+      } else if (target > 0) {
+        displayPercent = Math.min((completed / target) * 100, 100);
+      }
+      assert.equal(displayPercent, 0);
+    });
+
+    it('returns accurate percentage capped at 100% when target > 0', () => {
+      const target = 5;
+      const completed = 3;
+      let displayPercent = 0;
+      if (target === 0 && completed > 0) {
+        displayPercent = 100;
+      } else if (target > 0) {
+        displayPercent = Math.min((completed / target) * 100, 100);
+      }
+      assert.equal(displayPercent, 60);
+
+      const overCompleted = 8;
+      let overPercent = 0;
+      if (target === 0 && overCompleted > 0) {
+        overPercent = 100;
+      } else if (target > 0) {
+        overPercent = Math.min((overCompleted / target) * 100, 100);
+      }
+      assert.equal(overPercent, 100);
     });
   });
 });

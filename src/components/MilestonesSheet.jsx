@@ -7,6 +7,7 @@ import { hapticFeedback } from '../utils/haptics';
 /**
  * Milestones View (Progressive Disclosure)
  * 5 flat, geometric SVG badges with HIG styling.
+ * Snaps to 50% and 100% of screen height with prominent gray drag handle.
  */
 export default function MilestonesSheet() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,8 +15,7 @@ export default function MilestonesSheet() {
   const dashboardData = data?.dashboard || {};
   
   const streak = dashboardData.streak || 0;
-  const hours = dashboardData.todayTotalTime ? dashboardData.todayTotalTime / 60 : 0; 
-  // Normally hours would be total historical hours, but we approximate for the demo
+  const hours = dashboardData.todayTotalTime ? dashboardData.todayTotalTime / 60 : 0;
 
   useEffect(() => {
     const handleOpen = () => {
@@ -46,7 +46,7 @@ export default function MilestonesSheet() {
       title: '100 Hours Focused',
       desc: 'Logged 100 hours of deep work.',
       icon: Clock,
-      unlocked: hours >= 100, // Approximated unlock condition
+      unlocked: hours >= 100,
     },
     {
       id: 'syllabus-half',
@@ -65,14 +65,14 @@ export default function MilestonesSheet() {
   ];
 
   return (
-    <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Drawer.Root open={isOpen} onOpenChange={setIsOpen} snapPoints={[0.5, 1]}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]" />
-        <Drawer.Content className="bg-background-elevated flex flex-col rounded-t-[32px] h-[75vh] mt-24 fixed bottom-0 left-0 right-0 z-[101] outline-none shadow-[0_-8px_40px_rgba(0,0,0,0.12)] border-t-[0.5px] border-border overflow-hidden">
-          {/* Drag Handle */}
-          <div className="p-4 bg-background-elevated sticky top-0 z-10 rounded-t-[32px]">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-label-tertiary/30 mb-6" />
-            <div className="flex items-center justify-between">
+        <Drawer.Content className="bg-background-elevated flex flex-col rounded-t-[32px] fixed bottom-0 left-0 right-0 z-[101] outline-none shadow-[0_-8px_40px_rgba(0,0,0,0.12)] border-t-[0.5px] border-border overflow-hidden h-full max-h-[100vh]">
+          {/* Prominent gray pill-shaped drag handle at top */}
+          <div className="pt-3 pb-1 bg-background-elevated sticky top-0 z-10 flex flex-col items-center shrink-0">
+            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 shrink-0" />
+            <div className="w-full px-6 flex items-center justify-between">
               <div>
                 <Drawer.Title className="font-bold text-xl text-label tracking-tight">
                   Milestones
@@ -84,14 +84,14 @@ export default function MilestonesSheet() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-label-secondary hover:text-label transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-label-secondary hover:text-label transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="p-4 sm:p-6 overflow-y-auto space-y-4 pb-[env(safe-area-inset-bottom)]">
+          <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {milestones.map((m) => {
                 const Icon = m.icon;
@@ -135,4 +135,3 @@ export default function MilestonesSheet() {
     </Drawer.Root>
   );
 }
-

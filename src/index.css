@@ -75,8 +75,14 @@
     --color-system-green: var(--color-success);
   }
 
+  html {
+    overscroll-behavior-y: none;
+  }
+
   body {
     @apply bg-background text-label transition-colors duration-300 min-h-screen;
+    overscroll-behavior-y: none;
+    touch-action: pan-x pan-y;
     font-family:
       'Outfit',
       'Inter',

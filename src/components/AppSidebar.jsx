@@ -433,9 +433,7 @@ export default function AppSidebar({
 
   return (
     <>
-      {/* ============================================================== */}
-      {/* 1. PC / TABLET: macOS-STYLE PUSH SIDEBAR (FLEXBOX SIBLING)     */}
-      {/* ============================================================== */}
+      {/* 1. PC / TABLET: macOS-STYLE PUSH SIDEBAR (Hidden on Mobile) */}
       {!isMobile && (
         <motion.aside
           initial={false}
@@ -444,41 +442,10 @@ export default function AppSidebar({
             opacity: isOpen ? 1 : 0,
           }}
           transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.5 }}
-          className="h-full bg-background-elevated backdrop-blur-xl border-r border-[0.5px] border-separator flex-shrink-0 overflow-hidden"
+          className="hidden md:flex h-full bg-background-elevated backdrop-blur-xl border-r border-[0.5px] border-separator flex-shrink-0 overflow-hidden"
         >
           {sidebarInnerContent}
         </motion.aside>
-      )}
-
-      {/* ============================================================== */}
-      {/* 2. MOBILE OVERRIDE: FIXED FULL-SCREEN OVERLAY DRAWER (< 768px) */}
-      {/* ============================================================== */}
-      {isMobile && (
-        <AnimatePresence>
-          {isOpen && (
-            <div className="fixed inset-0 z-50 flex">
-              {/* Dimmed backdrop with blur */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={onClose}
-                className="fixed inset-0 bg-black/40 backdrop-blur-sm"
-              />
-
-              {/* Mobile Slide-in Drawer */}
-              <motion.aside
-                initial={{ x: '-100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '-100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.5 }}
-                className="relative z-10 w-72 h-full bg-background-elevated backdrop-blur-2xl border-r border-[0.5px] border-border flex flex-col justify-between overflow-y-auto select-none shadow-sm"
-              >
-                {sidebarInnerContent}
-              </motion.aside>
-            </div>
-          )}
-        </AnimatePresence>
       )}
 
       {/* Join Classroom Modal for Students */}
